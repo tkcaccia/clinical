@@ -205,7 +205,7 @@ print(multi_corr)
 ```
 
 
-# Function: `intersect_multiple`
+# Function: `intersect`
 
 Finds the intersection of multiple vectors.
 
@@ -214,7 +214,7 @@ v1 <- c("A", "B", "C")
 v2 <- c("B", "C", "D")
 v3 <- c("C", "B", "E")
 
-intersect_multiple(v1, v2, v3)
+intersect(v1, v2, v3)
 ```
 
 # Function: `frequency_matching`

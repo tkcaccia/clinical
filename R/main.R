@@ -1,15 +1,8 @@
 
 
 
-# Use base set semantics at each step: duplicates within an input are not votes.
-intersect_multiple = function(x, y, ...) {
-  Reduce(base::intersect, list(x, y, ...))
-}
-
-# Retained for callers using the original exported name.
 intersect = function(x, y, ...) {
-  .Deprecated("intersect_multiple", package = "clinical")
-  intersect_multiple(x, y, ...)
+  Reduce(base::intersect, list(x, y, ...))
 }
 
 as.data.matrix = function(x){

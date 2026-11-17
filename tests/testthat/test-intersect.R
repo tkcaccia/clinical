@@ -1,13 +1,13 @@
 test_that("duplicates cannot create or remove intersection members", {
   x <- c("A", "B")
   y <- c("B", "C", "C")
-  expect_identical(intersect_multiple(x, y), "B")
-  expect_identical(intersect_multiple(c("A", "B", "B"), y), "B")
+  expect_identical(clinical::intersect(x, y), "B")
+  expect_identical(clinical::intersect(c("A", "B", "B"), y), "B")
 
   x <- c("GW22_01_003", "SADT001")
   y <- c("SADT001", "SOL_PCO_165", "SOL_PCO_165")
-  expect_identical(intersect_multiple(x, y), "SADT001")
-  expect_false("SOL_PCO_165" %in% intersect_multiple(x, y))
+  expect_identical(clinical::intersect(x, y), "SADT001")
+  expect_false("SOL_PCO_165" %in% clinical::intersect(x, y))
 })
 
 test_that("two-vector intersections agree exactly with base R", {
@@ -25,9 +25,7 @@ test_that("two-vector intersections agree exactly with base R", {
   )
   for (pair in pairs) {
     expected <- base::intersect(pair[[1]], pair[[2]])
-    expect_identical(intersect_multiple(pair[[1]], pair[[2]]), expected)
-    expect_identical(suppressWarnings(clinical::intersect(pair[[1]], pair[[2]])),
-                     expected)
+    expect_identical(clinical::intersect(pair[[1]], pair[[2]]), expected)
   }
 })
 
@@ -41,19 +39,16 @@ test_that("every result belongs to all inputs, regardless of duplicates", {
     list(factor(c("A", "B")), factor(c("B", "C")), factor("B"))
   )
   for (vectors in cases) {
-    result <- do.call(intersect_multiple, vectors)
+    result <- do.call(clinical::intersect, vectors)
     expect_identical(result, Reduce(base::intersect, vectors))
-    expect_identical(suppressWarnings(do.call(clinical::intersect, vectors)), result)
     for (vector in vectors) expect_true(all(result %in% vector))
     expect_identical(anyDuplicated(result), 0L)
   }
-  expect_identical(do.call(intersect_multiple, cases[[1]]), "C")
-  expect_identical(do.call(intersect_multiple, cases[[2]]), "B")
+  expect_identical(do.call(clinical::intersect, cases[[1]]), "C")
+  expect_identical(do.call(clinical::intersect, cases[[2]]), "B")
 })
 
-test_that("legacy calls warn and direct users to the preferred API", {
-  expect_warning(result <- clinical::intersect(c("A", "B"), c("B", "C", "C")),
-                 "intersect_multiple", class = "deprecatedWarning")
+test_that("intersect retains its API without warnings", {
+  expect_no_warning(result <- clinical::intersect(c("A", "B"), c("B", "C", "C")))
   expect_identical(result, "B")
-  expect_no_warning(intersect_multiple("A", "A"))
 })

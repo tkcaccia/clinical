@@ -7,7 +7,6 @@ importFrom("clinfun","jonckheere.test")
 
 export(as.data.matrix)
 export(intersect)
-export(intersect_multiple)
 export(frequency_matching)
 export(txtsummary)
 export(continuous.test)
