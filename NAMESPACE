@@ -15,3 +15,5 @@ export(correlation.test)
 export(multi_analysis)
 export(initialization)
 export(add_analysis)
+
+export(write_excel)

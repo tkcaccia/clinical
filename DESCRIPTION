@@ -9,7 +9,9 @@ Description: A collection of tools to easily analyze clinical data, including fu
   enabling exploration of quantitative variables. It also includes the utility for frequency matching samples across 
   a dataset based on patient variables.
 Depends: R (>= 3.5.0), stats, minerva, Matrix, clinfun, methods
-Suggests: knitr, rmarkdown
+Imports: writexl
+Suggests: knitr, rmarkdown, testthat (>= 3.0.0), readxl
+Config/testthat/edition: 3
 VignetteBuilder: knitr
 SuggestsNote: No suggestions
 License: GPL (>= 2)
