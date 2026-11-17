@@ -1,13 +1,8 @@
 
 
 
-intersect = function (x, y, ...) 
-{
-  args <- list(x,y,...)
-  n=length(args)
-  inte=names(which(table(unlist(args))==n))
-  if(length(inte)==0) inte=NULL
-  inte
+intersect = function(x, y, ...) {
+  Reduce(base::intersect, list(x, y, ...))
 }
 
 as.data.matrix = function(x){
