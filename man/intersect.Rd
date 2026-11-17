@@ -1,10 +1,14 @@
-\name{intersect}
+\name{intersect_multiple}
+\alias{intersect_multiple}
 \alias{intersect}
 \title{Intersection of Multiple Vectors}
 \description{
-Returns the intersection of all vectors provided as arguments.
+Returns the unique elements shared by all supplied vectors using base R set
+intersection semantics.
 }
 \usage{
+intersect_multiple(x, y, ...)
+
 intersect(x, y, ...)
 }
 \arguments{
@@ -13,19 +17,31 @@ intersect(x, y, ...)
   \item{...}{Additional vectors to include in the intersection.}
 }
 \details{
-This function computes the intersection of two or more vectors by identifying elements that are present in all of them. Unlike the base R \code{\link{intersect}}, which only compares two vectors, this version can take multiple vectors as input.
+The implementation successively applies \code{\link[base]{intersect}} from
+left to right. Duplicates within one input do not imply membership in another.
+With two inputs the result is identical to \code{base::intersect(x, y)},
+including ordering, missing values, types and class handling on the running
+version of R. With more inputs, the same semantics apply at each step.
+
+\code{intersect} is a deprecated compatibility wrapper and signals a
+\code{deprecatedWarning}. Use \code{intersect_multiple} for new code. The
+legacy export still masks \code{base::intersect} when the package is attached;
+use \code{base::intersect} explicitly for the base two-vector function.
 }
 \value{
-A character vector (or \code{NULL} if no intersection exists) containing the elements that are common to all input vectors.
+The result of \code{Reduce(base::intersect, list(x, y, ...))}. Empty results
+follow base R semantics (for example, \code{character(0)} for disjoint character
+vectors), rather than returning \code{NULL} unconditionally.
 }
 \examples{
 x <- c("a", "b", "c")
-y <- c("b", "c", "d")
+y <- c("b", "c", "d", "d")
 z <- c("c", "b", "e")
 
-intersect(x, y, z)  # Returns "b" and "c"
-intersect(x, y, c("f", "g"))  # Returns NULL
+intersect_multiple(x, y, z)  # "b" and "c"
+intersect_multiple(x, y, c("f", "g"))  # character(0)
 }
-\seealso{\code{\link{intersect}}, \code{\link{union}}, \code{\link{setdiff}}}
+\seealso{\code{\link[base]{intersect}}, \code{\link[base]{union}},
+\code{\link[base]{setdiff}}}
 \author{Stefano Cacciatore}
-\keyword{set operations}
+\keyword{sets}
