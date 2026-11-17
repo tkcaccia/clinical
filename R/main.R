@@ -31,22 +31,28 @@ function (name, x, y,
           total.column = FALSE, ...) 
 {
     matchFUN.test = pmatch(method[1], c("non-parametric", "parametric"))
-    if (matchFUN.test != 1 & matchFUN.test != 2) {
+    if (is.na(matchFUN.test)) {
         stop("Method argument should one of \"non-parametric\",\"parametric\"")
     }
+    if (!is.numeric(x) || length(x) != length(y)) {
+        stop("x must be numeric and have the same length as y.")
+    }
+    pval = NA_real_
+    fc = NA_real_
     y = as.factor(y)
     ll = levels(y)
     A = x[y == ll[1]]
     B = x[y == ll[2]]
     nn = length(levels(y))
-    nn2 = length(unique(y[!is.na(x)]))
+    nn2 = length(unique(y[!is.na(x) & !is.na(y)]))
+    testable = nn2 > 1 && length(unique(x[!is.na(x) & !is.na(y)])) > 1
     v = data.frame(matrix(nrow = 1, ncol = nn + 3))
     v[1, 1] = name
     if (nn == 2 & nn2 > 1) {
-        if (matchFUN.test == 1) {
+        if (matchFUN.test == 1 && testable) {
             pval = wilcox.test(x ~ y, exact = FALSE, ...)$p.value
         }
-        if (matchFUN.test == 2) {
+        if (matchFUN.test == 2 && testable) {
             pval = t.test(x ~ y, ...)$p.value
         }
         if (logchange == TRUE) {
@@ -54,19 +60,19 @@ function (name, x, y,
         }
     }
     if (nn > 2 & nn2 > 1) {
-        if (matchFUN.test == 1) {
+        if (matchFUN.test == 1 && testable) {
             pval = kruskal.test(x ~ y, ...)$p.value
         }
-        if (matchFUN.test == 2) {
+        if (matchFUN.test == 2 && testable) {
             pval = summary.aov(aov(x ~ y, ...))[[1]]$`Pr(>F)`[1]
         }
         logchange = FALSE
     }
-    if (nn > 1) {
+    if (nn > 0) {
         v[1, 2:(1 + nn)] = tapply(x, y, function(x) txtsummary(x, f=center,
                                                                digits = digits, scientific = scientific, range = range))
-        v[1, nn + 2] = txtsummary(x, f=center,digits = digits, scientific = scientific)
-        if (nn2 == 1) {
+        v[1, nn + 2] = txtsummary(x, f=center,digits = digits, scientific = scientific, range = range)
+        if (nn2 < 2) {
             v[1, nn + 3] = NA
         }
         else {
@@ -74,8 +80,15 @@ function (name, x, y,
         }
     }
 
+    if (nn == 0) {
+        v[1, 2] = txtsummary(x, f = center, digits = digits,
+                            scientific = scientific, range = range)
+    }
+    group.names = if (nn > 0) {
+        paste(levels(y), ", ", center[1], " [", range[1], "]", sep = "")
+    } else character(0)
     if (pos == 1) {
-            names(v) = c("Feature", paste(levels(y), ", ",center[1]," [",range[1],"]",sep = ""), 
+            names(v) = c("Feature", group.names,
                          paste("Total, ",center[1]," [",range[1],"]",sep = ""),
                                "p-value")  
     }
@@ -86,7 +99,7 @@ function (name, x, y,
         names(v) = c("Feature", levels(y), "Total", "p-value")
     }
     v[v == "NA [NA NA]"] = "-"
-    if (logchange == TRUE) {
+    if (logchange == TRUE && nn == 2) {
         v = cbind(v[1, 1:(nn + 2)], logchange = round(fc, digits = 2), 
                   `p-value` = v[1, (nn + 3)])
         attr(v, "p-logchange") = fc
@@ -94,10 +107,13 @@ function (name, x, y,
     if (!total.column) {
         v = v[, -(nn + 2)]
     }
-    if(length(x)<5000){                                
-      sha=shapiro.test(x)$p.value 
-      attr(v, "shapiro test") = sha                              
+    observed = x[!is.na(x)]
+    sha = NA_real_
+    if (length(observed) >= 3 && length(observed) <= 5000 &&
+        all(is.finite(observed)) && length(unique(observed)) > 1) {
+        sha = shapiro.test(observed)$p.value
     }
+    attr(v, "shapiro test") = sha
     attr(v, "p-value") = pval
     return(v)
 } 

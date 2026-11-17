@@ -40,6 +40,20 @@ continuous.test (name,
     The function returns a table with the summarized information and the relative p-value. For non-parametric method, if the number of group is equal to two, the p-value is computed using the Wilcoxon rank-sum test, Kruskal-Wallis test otherwise. For parametric method, if the number of group is equal to two, the p-value is computed using the Student's t-Test, ANOVA one-way otherwise.
   }
 
+\details{
+Group summaries are returned even when fewer than two groups have observed
+values. The p-value is \code{NA} when fewer than two groups have observations
+or all observations with a non-missing group label are identical. Missing group
+labels do not count as an observed group. The total summary includes all
+non-missing values in \code{x} and uses the requested \code{range}.
+
+The numeric p-value is also available as the \code{"p-value"} attribute.
+The \code{"shapiro test"} attribute contains the Shapiro-Wilk p-value when
+\code{x} has between 3 and 5000 non-missing, finite observations and is not
+constant; otherwise it is \code{NA}. Log fold change is reported only when
+\code{y} has exactly two levels.
+}
+
 \author{Stefano Cacciatore}
 
   \seealso{\code{\link{correlation.test}}, \code{\link{categorical.test}}, \code{\link{txtsummary}}}
